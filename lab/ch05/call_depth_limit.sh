@@ -21,7 +21,7 @@ try_depth() {
   local n="$1"
   shift
   local out
-  out="$(nix eval "$@" --expr "${sum_to} ${n}" 2>&1 | grep -E '^[0-9]+$|^error: ' | tail -n 1)" || true
+  out="$(nix eval "$@" --expr "${sum_to} ${n}" 2>&1 | grep -E '^[0-9]+$|^ *error: ' | sed 's/^ *//' | tail -n 1)" || true
   echo "${n} [$*]: ${out}"
 }
 
