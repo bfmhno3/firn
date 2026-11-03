@@ -38,9 +38,31 @@ let
       else
         value
     ) rhs;
+
+  nameValuePair = name: value: { inherit name value; };
+
+  # genAttrs [ "a" "b" ] f == { a = f "a"; b = f "b"; }
+  genAttrs = names: f: builtins.listToAttrs (map (n: nameValuePair n (f n)) names);
+
+  # 按键排序后把每个键值对映射成列表元素。
+  mapAttrsToList = f: attrs: map (name: f name attrs.${name}) (builtins.attrNames attrs);
+
+  filterAttrs =
+    pred: set:
+    builtins.listToAttrs (
+      map (n: nameValuePair n set.${n}) (builtins.filter (n: pred n set.${n}) (builtins.attrNames set))
+    );
+
+  # f 返回 { name; value; }，可以改键；键冲突时先出现的（按键排序）胜出。
+  mapAttrs' = f: set: builtins.listToAttrs (map (n: f n set.${n}) (builtins.attrNames set));
 in
 {
   inherit
+    nameValuePair
+    genAttrs
+    mapAttrsToList
+    filterAttrs
+    mapAttrs'
     attrByPath
     hasAttrByPath
     setAttrByPath

@@ -42,9 +42,9 @@ flake.nix, flake.lock   the flake; nixpkgs is pinned in the lock file
 nix/pins.nix            reads flake.lock, fetches the same nixpkgs without flakes
 nix/pkgs.nix            `import` of that nixpkgs, for labs
 scripts/chapter.sh      lab runner
-lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, strings, importers, sources, readme
+lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, strings, importers, sources, readme, lists, generators, debug
 data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
-tests/lib.nix           lib tests: `nix eval --file tests/lib.nix` prints `[ ]`
+tests/lib.nix           lib tests on `runTests`: `nix eval --file tests/lib.nix` prints `[ ]`; also the flake check `lib-tests`
 lab/chNN/               small experiments, one directory per chapter
 Makefile                entry points: chNN, chapters, lint, check, ci, clean
 ```
@@ -63,7 +63,8 @@ Lab conventions, enforced by `scripts/chapter.sh`:
 ```bash
 nix develop
 make ch01      # run the labs of one chapter
-make ci        # lint + every chapter
+make ci        # lint + every chapter + nix flake check
+make check     # flake checks: dev-shell, lib-tests, readme-table
 ```
 
 ## License

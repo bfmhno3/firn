@@ -25,7 +25,7 @@ lint:
 check:
 	nix flake check -L
 
-ci: lint chapters
+ci: lint chapters check
 
 clean:
 	rm -rf out

@@ -7,6 +7,9 @@ let
   importers = import ./importers.nix;
   sources = import ./sources.nix;
   readme = import ./readme.nix;
+  lists = import ./lists.nix;
+  generators = import ./generators.nix;
+  debug = import ./debug.nix;
 in
 {
   version = "0.1.0";
@@ -18,6 +21,9 @@ in
     importers
     sources
     readme
+    lists
+    generators
+    debug
     ;
 }
 // trivial
@@ -27,3 +33,6 @@ in
 // importers
 // sources
 // readme
+// lists
+// generators
+// debug
