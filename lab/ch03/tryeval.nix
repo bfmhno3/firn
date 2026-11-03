@@ -6,7 +6,7 @@
     1
   );
   ok = builtins.tryEval 42;
-  # 只求值到 WHNF：内部的毒药不被发现，成功返回，打印时才炸，所以这里不打印它。
+  # 只求值到 WHNF：内部的毒药不被发现，tryEval 照样成功返回；nix eval 默认格式会把它打印成 «error: inner»，只有 --json 这类要求完整求值的输出才会报错，这里只取 success。
   shallow = (builtins.tryEval { a = throw "inner"; }).success;
   # 要捕获内部错误，必须 deepSeq。
   deep = (builtins.tryEval (builtins.deepSeq { a = throw "inner"; } 1)).success;
