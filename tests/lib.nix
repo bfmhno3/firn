@@ -107,6 +107,110 @@ let
       expr = lib.const "x" (throw "never forced");
       expected = "x";
     };
+    pipeOrder = {
+      expr = lib.pipe 3 [
+        (x: x + 1)
+        (x: x * 10)
+        toString
+      ];
+      expected = "40";
+    };
+    pipeEmpty = {
+      expr = lib.pipe 7 [ ];
+      expected = 7;
+    };
+    fixSelfReference = {
+      expr = lib.fix (self: {
+        a = 1;
+        b = self.a + 1;
+      });
+      expected = {
+        a = 1;
+        b = 2;
+      };
+    };
+    fixLazyUnused = {
+      expr =
+        (lib.fix (_: {
+          a = 1;
+          bad = throw "never forced";
+        })).a;
+      expected = 1;
+    };
+    extendsOverridesDependents = {
+      expr =
+        (lib.fix (
+          lib.extends (_: _: { a = 10; }) (self: {
+            a = 1;
+            b = self.a + 1;
+          })
+        )).b;
+      expected = 11;
+    };
+    extendsSeesPrev = {
+      expr =
+        (lib.fix (
+          lib.extends (_: prev: { a = prev.a + 5; }) (_: {
+            a = 1;
+          })
+        )).a;
+      expected = 6;
+    };
+    composeExtensionsOrder = {
+      expr =
+        (lib.fix (
+          lib.extends (lib.composeExtensions (_: prev: { a = prev.a + 1; }) (_: prev: { a = prev.a * 10; }))
+            (_: {
+              a = 1;
+            })
+        )).a;
+      expected = 20;
+    };
+    composeManyExtensionsOrder = {
+      expr =
+        (lib.fix (
+          lib.extends
+            (lib.composeManyExtensions [
+              (_: prev: { a = prev.a + 1; })
+              (_: prev: { a = prev.a * 10; })
+              (_: prev: { a = prev.a - 3; })
+            ])
+            (_: {
+              a = 1;
+            })
+        )).a;
+      expected = 17;
+    };
+    composeManyExtensionsEmpty = {
+      expr =
+        (lib.fix (
+          lib.extends (lib.composeManyExtensions [ ]) (_: {
+            a = 1;
+          })
+        )).a;
+      expected = 1;
+    };
+    makeExtensibleExtend = {
+      expr =
+        let
+          base = lib.makeExtensible (self: {
+            a = 1;
+            b = self.a + 1;
+          });
+        in
+        (base.extend (_: _: { a = 10; })).b;
+      expected = 11;
+    };
+    makeExtensibleChained = {
+      expr =
+        let
+          base = lib.makeExtensible (_: {
+            a = 1;
+          });
+        in
+        ((base.extend (_: prev: { a = prev.a + 1; })).extend (_: prev: { a = prev.a * 10; })).a;
+      expected = 20;
+    };
   };
   failed = builtins.filter (t: t.expr != t.expected) (
     builtins.attrValues (builtins.mapAttrs (name: t: t // { inherit name; }) cases)

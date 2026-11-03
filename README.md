@@ -40,7 +40,7 @@ flake.nix, flake.lock   the flake; nixpkgs is pinned in the lock file
 nix/pins.nix            reads flake.lock, fetches the same nixpkgs without flakes
 nix/pkgs.nix            `import` of that nixpkgs, for labs
 scripts/chapter.sh      lab runner
-lib/                    Firn's own library (no nixpkgs): trivial, attrsets, ...
+lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, ...
 tests/lib.nix           lib tests: `nix eval --file tests/lib.nix` prints `[ ]`
 lab/chNN/               small experiments, one directory per chapter
 Makefile                entry points: chNN, chapters, lint, check, ci, clean
