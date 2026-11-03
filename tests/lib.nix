@@ -211,6 +211,115 @@ let
         ((base.extend (_: prev: { a = prev.a + 1; })).extend (_: prev: { a = prev.a * 10; })).a;
       expected = 20;
     };
+    hasPrefixYes = {
+      expr = lib.hasPrefix "ab" "abc";
+      expected = true;
+    };
+    hasPrefixLonger = {
+      expr = lib.hasPrefix "abcd" "abc";
+      expected = false;
+    };
+    hasSuffixYes = {
+      expr = lib.hasSuffix "bc" "abc";
+      expected = true;
+    };
+    hasSuffixLonger = {
+      expr = lib.hasSuffix "xabc" "abc";
+      expected = false;
+    };
+    splitStringBasic = {
+      expr = lib.splitString "," "a,b,,c";
+      expected = [
+        "a"
+        "b"
+        ""
+        "c"
+      ];
+    };
+    splitStringRegexChar = {
+      expr = lib.splitString "." "a.b.c";
+      expected = [
+        "a"
+        "b"
+        "c"
+      ];
+    };
+    splitStringNoMatch = {
+      expr = lib.splitString "," "abc";
+      expected = [ "abc" ];
+    };
+    concatMapStringsSepBasic = {
+      expr = lib.concatMapStringsSep "-" toString [
+        1
+        2
+        3
+      ];
+      expected = "1-2-3";
+    };
+    escapeShellArgPlain = {
+      expr = lib.escapeShellArg "a b";
+      expected = "'a b'";
+    };
+    escapeShellArgQuote = {
+      expr = lib.escapeShellArg "it's";
+      expected = "'it'\\''s'";
+    };
+    importTOMLChapters = {
+      expr = builtins.length (lib.importTOML ../data/chapters.toml).chapters;
+      expected = 20;
+    };
+    importJSONFixture = {
+      expr = lib.importJSON (builtins.toFile "x.json" ''{"a":[1,2]}'');
+      expected = {
+        a = [
+          1
+          2
+        ];
+      };
+    };
+    readLinesNoTrailingEmpty = {
+      expr = lib.readLines (builtins.toFile "x.txt" "a\nb\n");
+      expected = [
+        "a"
+        "b"
+      ];
+    };
+    readLinesKeepsInnerEmpty = {
+      expr = lib.readLines (builtins.toFile "y.txt" "a\n\nb");
+      expected = [
+        "a"
+        ""
+        "b"
+      ];
+    };
+    renderChapterTableTwoRows = {
+      expr = lib.renderChapterTable [
+        {
+          n = 1;
+          stem = "s1";
+          title = "T1";
+        }
+        {
+          n = 12;
+          stem = "s12";
+          title = "T12";
+        }
+      ];
+      expected = "| Chapter | Topic | Post |\n| --- | --- | --- |\n| `ch01` | T1 | `/posts/s1/` |\n| `ch12` | T12 | `/posts/s12/` |\n";
+    };
+    cleanSourceKeepsRegularFiles = {
+      expr =
+        let
+          src = lib.cleanSource ../lab/ch04/fixtures;
+        in
+        builtins.attrNames (builtins.readDir src);
+      expected = [
+        "adder.nix"
+        "dir"
+        "gen.nix"
+        "traced.nix"
+      ];
+    };
   };
   failed = builtins.filter (t: t.expr != t.expected) (
     builtins.attrValues (builtins.mapAttrs (name: t: t // { inherit name; }) cases)

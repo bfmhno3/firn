@@ -8,28 +8,30 @@ Each chapter is one git tag, `ch01` to `ch20`. Check out a tag to see the reposi
 
 ## Chapters
 
+<!-- chapters:begin -->
 | Chapter | Topic | Post |
 | --- | --- | --- |
-| `ch01` | nix repl, three faces of Nix | `/posts/nix-by-firn-01-first-eval/` |
-| `ch02` | values and types | `/posts/nix-by-firn-02-values-and-types/` |
-| `ch03` | functions, laziness, fixed points | `/posts/nix-by-firn-03-functions-and-laziness/` |
-| `ch04` | builtins, string context, IFD | `/posts/nix-by-firn-04-builtins/` |
-| `ch05` | writing a lib: recursion, tests, debugging | `/posts/nix-by-firn-05-own-lib/` |
-| `ch06` | derivations and the store | `/posts/nix-by-firn-06-derivations-and-store/` |
-| `ch07` | stdenv from scratch | `/posts/nix-by-firn-07-stdenv-from-scratch/` |
-| `ch08` | flakes | `/posts/nix-by-firn-08-flakes/` |
-| `ch09` | two CLI generations | `/posts/nix-by-firn-09-cli-generations/` |
-| `ch10` | callPackage, override, overlays | `/posts/nix-by-firn-10-callpackage-overrides-overlays/` |
-| `ch11` | packaging real projects | `/posts/nix-by-firn-11-packaging-real-projects/` |
-| `ch12` | cross compilation and static linking | `/posts/nix-by-firn-12-cross-and-static/` |
-| `ch13` | dev shells, direnv, templates | `/posts/nix-by-firn-13-devshells-direnv-templates/` |
-| `ch14` | contributing to nixpkgs | `/posts/nix-by-firn-14-contributing-to-nixpkgs/` |
-| `ch15` | the module system | `/posts/nix-by-firn-15-module-system/` |
-| `ch16` | NixOS module and VM test | `/posts/nix-by-firn-16-nixos-module-and-vm-test/` |
-| `ch17` | secrets | `/posts/nix-by-firn-17-secrets/` |
-| `ch18` | Home Manager | `/posts/nix-by-firn-18-home-manager/` |
-| `ch19` | Determinate, FlakeHub, forks | `/posts/nix-by-firn-19-determinate-and-forks/` |
-| `ch20` | CI, binary caches, lint | `/posts/nix-by-firn-20-engineering/` |
+| `ch01` | 第一次求值：nix repl、三副面孔与一段历史 | `/posts/nix-by-firn-01-first-eval/` |
+| `ch02` | 值与类型：attrset、list、字符串与路径 | `/posts/nix-by-firn-02-values-and-types/` |
+| `ch03` | 函数与惰性求值：thunk、seq 与不动点 | `/posts/nix-by-firn-03-functions-and-laziness/` |
+| `ch04` | builtins 深挖：import、文件、JSON、正则与字符串上下文 | `/posts/nix-by-firn-04-builtins/` |
+| `ch05` | 自己写一个 lib：递归、错误处理与测试 | `/posts/nix-by-firn-05-own-lib/` |
+| `ch06` | derivation 与 /nix/store：.drv、哈希与沙箱 | `/posts/nix-by-firn-06-derivations-and-store/` |
+| `ch07` | 从零写 stdenv，再拆开 nixpkgs 的 stdenv | `/posts/nix-by-firn-07-stdenv-from-scratch/` |
+| `ch08` | flake：inputs、outputs、flake.lock 与纯求值 | `/posts/nix-by-firn-08-flakes/` |
+| `ch09` | 两代 CLI：nix-env、nix-build、nix-shell 与 nix profile | `/posts/nix-by-firn-09-cli-generations/` |
+| `ch10` | nixpkgs：callPackage、override、overlay 与 fetcher | `/posts/nix-by-firn-10-callpackage-overrides-overlays/` |
+| `ch11` | 打包真项目：Cairn、Sift 与 Pebble | `/posts/nix-by-firn-11-packaging-real-projects/` |
+| `ch12` | 交叉编译与静态链接：pkgsCross、pkgsStatic 与 splicing | `/posts/nix-by-firn-12-cross-and-static/` |
+| `ch13` | 开发环境：devShell、direnv 与 templates | `/posts/nix-by-firn-13-devshells-direnv-templates/` |
+| `ch14` | 给 nixpkgs 提 PR：by-name、nixpkgs-review 与 channel | `/posts/nix-by-firn-14-contributing-to-nixpkgs/` |
+| `ch15` | 模块系统：从零写一个，再读懂 lib.evalModules | `/posts/nix-by-firn-15-module-system/` |
+| `ch16` | NixOS：services.cairn、VM 测试与一次 switch | `/posts/nix-by-firn-16-nixos-module-and-vm-test/` |
+| `ch17` | secrets：为什么不能进 store，以及 sops-nix | `/posts/nix-by-firn-17-secrets/` |
+| `ch18` | Home Manager：programs.cairn 与用户级配置 | `/posts/nix-by-firn-18-home-manager/` |
+| `ch19` | Determinate、FlakeHub 与 Nix 的分叉们 | `/posts/nix-by-firn-19-determinate-and-forks/` |
+| `ch20` | 工程化：CI、Cachix、lint 与可复现性 | `/posts/nix-by-firn-20-engineering/` |
+<!-- chapters:end -->
 
 The posts live at <https://bfmhno3.github.io>.
 
@@ -40,7 +42,8 @@ flake.nix, flake.lock   the flake; nixpkgs is pinned in the lock file
 nix/pins.nix            reads flake.lock, fetches the same nixpkgs without flakes
 nix/pkgs.nix            `import` of that nixpkgs, for labs
 scripts/chapter.sh      lab runner
-lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, ...
+lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, strings, importers, sources, readme
+data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
 tests/lib.nix           lib tests: `nix eval --file tests/lib.nix` prints `[ ]`
 lab/chNN/               small experiments, one directory per chapter
 Makefile                entry points: chNN, chapters, lint, check, ci, clean

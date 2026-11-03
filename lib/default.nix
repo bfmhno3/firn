@@ -3,11 +3,27 @@ let
   trivial = import ./trivial.nix;
   attrsets = import ./attrsets.nix;
   fixed-points = import ./fixed-points.nix;
+  strings = import ./strings.nix;
+  importers = import ./importers.nix;
+  sources = import ./sources.nix;
+  readme = import ./readme.nix;
 in
 {
   version = "0.1.0";
-  inherit trivial attrsets fixed-points;
+  inherit
+    trivial
+    attrsets
+    fixed-points
+    strings
+    importers
+    sources
+    readme
+    ;
 }
 // trivial
 // attrsets
 // fixed-points
+// strings
+// importers
+// sources
+// readme

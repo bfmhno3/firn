@@ -1,0 +1,121 @@
+# 20 章的编号、文章 slug、标题和主题；README 的章节表由它渲染。
+
+[[chapters]]
+n = 1
+stem = "nix-by-firn-01-first-eval"
+title = "第一次求值：nix repl、三副面孔与一段历史"
+topics = [ "入门", "函数式", "历史" ]
+
+[[chapters]]
+n = 2
+stem = "nix-by-firn-02-values-and-types"
+title = "值与类型：attrset、list、字符串与路径"
+topics = [ "类型", "attrset", "字符串" ]
+
+[[chapters]]
+n = 3
+stem = "nix-by-firn-03-functions-and-laziness"
+title = "函数与惰性求值：thunk、seq 与不动点"
+topics = [ "惰性求值", "函数式", "不动点" ]
+
+[[chapters]]
+n = 4
+stem = "nix-by-firn-04-builtins"
+title = "builtins 深挖：import、文件、JSON、正则与字符串上下文"
+topics = [ "builtins", "字符串上下文", "IFD" ]
+
+[[chapters]]
+n = 5
+stem = "nix-by-firn-05-own-lib"
+title = "自己写一个 lib：递归、错误处理与测试"
+topics = [ "递归", "测试", "调试" ]
+
+[[chapters]]
+n = 6
+stem = "nix-by-firn-06-derivations-and-store"
+title = "derivation 与 /nix/store：.drv、哈希与沙箱"
+topics = [ "derivation", "store", "沙箱" ]
+
+[[chapters]]
+n = 7
+stem = "nix-by-firn-07-stdenv-from-scratch"
+title = "从零写 stdenv，再拆开 nixpkgs 的 stdenv"
+topics = [ "stdenv", "bootstrap", "包集合" ]
+
+[[chapters]]
+n = 8
+stem = "nix-by-firn-08-flakes"
+title = "flake：inputs、outputs、flake.lock 与纯求值"
+topics = [ "flake", "可复现性" ]
+
+[[chapters]]
+n = 9
+stem = "nix-by-firn-09-cli-generations"
+title = "两代 CLI：nix-env、nix-build、nix-shell 与 nix profile"
+topics = [ "CLI", "profile", "垃圾回收" ]
+
+[[chapters]]
+n = 10
+stem = "nix-by-firn-10-callpackage-overrides-overlays"
+title = "nixpkgs：callPackage、override、overlay 与 fetcher"
+topics = [ "nixpkgs", "overlay", "fetcher" ]
+
+[[chapters]]
+n = 11
+stem = "nix-by-firn-11-packaging-real-projects"
+title = "打包真项目：Cairn、Sift 与 Pebble"
+topics = [ "打包", "Rust", "Python", "Shell" ]
+
+[[chapters]]
+n = 12
+stem = "nix-by-firn-12-cross-and-static"
+title = "交叉编译与静态链接：pkgsCross、pkgsStatic 与 splicing"
+topics = [ "交叉编译", "静态链接", "musl" ]
+
+[[chapters]]
+n = 13
+stem = "nix-by-firn-13-devshells-direnv-templates"
+title = "开发环境：devShell、direnv 与 templates"
+topics = [ "devShell", "direnv", "模板" ]
+
+[[chapters]]
+n = 14
+stem = "nix-by-firn-14-contributing-to-nixpkgs"
+title = "给 nixpkgs 提 PR：by-name、nixpkgs-review 与 channel"
+topics = [ "nixpkgs", "开源贡献", "Hydra" ]
+
+[[chapters]]
+n = 15
+stem = "nix-by-firn-15-module-system"
+title = "模块系统：从零写一个，再读懂 lib.evalModules"
+topics = [ "模块系统", "类型", "优先级" ]
+
+[[chapters]]
+n = 16
+stem = "nix-by-firn-16-nixos-module-and-vm-test"
+title = "NixOS：services.cairn、VM 测试与一次 switch"
+topics = [ "NixOS", "systemd", "VM 测试" ]
+
+[[chapters]]
+n = 17
+stem = "nix-by-firn-17-secrets"
+title = "secrets：为什么不能进 store，以及 sops-nix"
+topics = [ "secrets", "sops-nix", "age" ]
+
+[[chapters]]
+n = 18
+stem = "nix-by-firn-18-home-manager"
+title = "Home Manager：programs.cairn 与用户级配置"
+topics = [ "Home Manager", "dotfiles" ]
+
+[[chapters]]
+n = 19
+stem = "nix-by-firn-19-determinate-and-forks"
+title = "Determinate、FlakeHub 与 Nix 的分叉们"
+topics = [ "Determinate", "FlakeHub", "Lix" ]
+
+[[chapters]]
+n = 20
+stem = "nix-by-firn-20-engineering"
+title = "工程化：CI、Cachix、lint 与可复现性"
+topics = [ "CI", "二进制缓存", "可复现性" ]
