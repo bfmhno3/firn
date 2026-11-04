@@ -537,6 +537,46 @@ let
         }
       ];
     };
+    testTextStorePathEmpty = {
+      expr = lib.storePath.textStorePath {
+        name = "empty";
+        content = "";
+      };
+      expected = builtins.toFile "empty" "";
+    };
+    testTextStorePathPlain = {
+      expr = lib.textStorePath {
+        name = "hello.txt";
+        content = "hello, firn\n";
+      };
+      expected = builtins.toFile "hello.txt" "hello, firn\n";
+    };
+    testTextStorePathWithReference =
+      let
+        dep = builtins.toFile "dep" "dependency";
+        content = "needs ${dep}\n";
+      in
+      {
+        expr = lib.textStorePath {
+          name = "user";
+          inherit content;
+          references = [ dep ];
+        };
+        expected = builtins.toFile "user" content;
+      };
+    testTextStorePathReferenceMatters =
+      let
+        dep = builtins.toFile "dep" "dependency";
+        content = "needs ${dep}\n";
+      in
+      {
+        expr =
+          lib.textStorePath {
+            name = "user";
+            inherit content;
+          } == builtins.toFile "user" content;
+        expected = false;
+      };
   };
   failed = lib.runTests cases;
 in

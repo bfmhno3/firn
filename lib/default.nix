@@ -10,6 +10,7 @@ let
   lists = import ./lists.nix;
   generators = import ./generators.nix;
   debug = import ./debug.nix;
+  storePath = import ./store-path.nix;
 in
 {
   version = "0.1.0";
@@ -24,6 +25,7 @@ in
     lists
     generators
     debug
+    storePath
     ;
 }
 // trivial
@@ -36,3 +38,4 @@ in
 // lists
 // generators
 // debug
+// storePath
