@@ -62,11 +62,18 @@
       devShells = forAllSystems devShellFor;
       firnLib = import ./lib;
       inherit (firnLib.importTOML ./data/chapters.toml) chapters;
+      miniFor =
+        system:
+        import ./mini {
+          busybox = nixpkgs.legacyPackages.${system}.pkgsStatic.busybox;
+          inherit system;
+        };
       checksFor =
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
           failures = import ./tests/lib.nix;
+          mini = miniFor system;
         in
         {
           dev-shell = devShells.${system};
@@ -95,11 +102,22 @@
                 diff -u want actual >&2
                 echo ok > $out
               '';
+
+          # mini 的 site 能构建，页面里有 hello 的输出和词频表。
+          mini-site = pkgs.runCommand "firn-mini-site" { } ''
+            grep -q '<h1>Firn mini site</h1>' ${mini.site}/index.html
+            grep -q 'Hello from mini' ${mini.site}/index.html
+            grep -q '^[0-9]* cairn$' ${mini.site}/index.html
+            echo ok > $out
+          '';
         };
     in
     {
       lib = firnLib;
       devShells = nixpkgs.lib.mapAttrs (_: devShell: { default = devShell; }) devShells;
       checks = forAllSystems checksFor;
+      legacyPackages = forAllSystems (system: {
+        mini = miniFor system;
+      });
     };
 }
