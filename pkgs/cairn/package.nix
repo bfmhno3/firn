@@ -27,8 +27,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [ makeWrapper ];
 
-  # patchShebangs 只改写 buildInputs 里有的解释器：
-  # bash 在这里，#!/usr/bin/env bash 才会变成 store 路径。
+  # patchShebangs 在 PATH 上找解释器：buildInputs 里的 bash 排在 stdenv 自带的
+  # bash 之前，所以 #!/usr/bin/env bash 会指向 pkgs.bash (bash-interactive)。
+  # 去掉这一行也会被改写，只是改成 stdenv 的 bash，闭包小约 7.6 MiB。
   buildInputs = [ bash ];
 
   dontBuild = true;
@@ -72,7 +73,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     substituteInPlace tests/snapshot.bats \
       --replace-fail '#!/usr/bin/env bash' '#!${bash}/bin/bash'
   '';
-  # install、completion、lock_signal 需要沙箱之外的工具或时序，不在这里跑。
+  # 这里只跑 cli、config、prune、snapshot、verify_diff、report 六个文件（81 个测试）；
+  # install.bats 在沙箱里不能通过（34/35），completion 和 lock_signal 实测能通过，但没有列入。
   checkPhase = ''
     runHook preCheck
     bats --formatter pretty tests/cli.bats tests/config.bats tests/prune.bats \

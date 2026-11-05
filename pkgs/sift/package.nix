@@ -30,8 +30,9 @@ python3Packages.buildPythonApplication (finalAttrs: {
     "sift.cli"
   ];
 
-  # 测试套件需要 dev 额外依赖和语料库，这里不跑。
-  doCheck = false;
+  # 测试套件需要 dev 额外依赖和语料库，所以没有 pytestCheckHook。
+  # 不要写 doCheck = false：mk-python-derivation 用 doInstallCheck = attrs.doCheck or true，
+  # 关掉 doCheck 会连带关掉下面的 installCheckPhase。
 
   doInstallCheck = true;
   installCheckPhase = ''
