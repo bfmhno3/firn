@@ -2,11 +2,14 @@
 #
 # Four ways to change firn-hello and what each does to the out path and the
 # name. `override` changes an argument of package.nix (greeting) and keeps the
-# name. `overrideAttrs` changes the attributes handed to mkDerivation; because
-# package.nix uses `finalAttrs`, bumping `version` makes `name` follow.
-# `lib.overrideDerivation` (deprecated) changes the final derivation
-# arguments, after `name` was already computed, so `name` does not follow.
-# A fixture shows the same effect for `rec` versus `finalAttrs`. Every out
+# name. `overrideAttrs` changes the attributes handed to mkDerivation; mkDerivation
+# computes `name` from the final `pname` and `version`, so bumping `version`
+# makes `name` follow. `lib.overrideDerivation` (discouraged in the Nixpkgs
+# manual) changes the arguments of the finished derivation, after `name` was
+# already computed, so `name` does not follow.
+# A fixture compares `rec` with `finalAttrs`: `name` follows in both, but an
+# attribute derived from `version` (TAG) follows only with `finalAttrs`.
+# `rebuilt` is only evaluated, never built (see fixtures/overrides.nix). Every out
 # path here is derived from the pinned nixpkgs, so the hashes stay the same
 # on any machine with the same pin. Builds go to the store, no result links.
 
