@@ -41,6 +41,7 @@ The posts live at <https://bfmhno3.github.io>.
 flake.nix, flake.lock   the flake; nixpkgs is pinned in the lock file
 nix/pins.nix            reads flake.lock, fetches the same nixpkgs without flakes
 nix/pkgs.nix            `import` of that nixpkgs, for labs
+default.nix, shell.nix  legacy entry points: `nix-build -A mini.hello`, `nix-shell`
 scripts/chapter.sh      lab runner
 lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, strings, importers, sources, readme, lists, generators, debug
 data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
@@ -70,6 +71,16 @@ Lab conventions, enforced by `scripts/chapter.sh`:
 | `legacyPackages.<sys>.mini` | the from-scratch package set |
 | `apps.<sys>.mini-hello` | `nix run .#mini-hello` prints the mini greeting |
 | `formatter.<sys>` | `nixfmt-tree`: `nix fmt` |
+
+## Without flakes
+
+`default.nix` and `shell.nix` give the same packages and tools to the legacy CLI. `nix/pins.nix` reads the nixpkgs revision
+from `flake.lock`, so both paths use one nixpkgs.
+
+```bash
+nix-build -A mini.hello    # same store path as: nix build .#legacyPackages.<sys>.mini.hello
+nix-shell                  # nixfmt, statix, deadnix, jq (no flake needed)
+```
 
 ## Running
 
