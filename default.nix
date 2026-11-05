@@ -7,6 +7,7 @@ let
   pkgs = import ./nix/pkgs.nix { inherit system; };
 in
 {
+  inherit (pkgs) firn-hello;
   mini = import ./mini {
     busybox = pkgs.pkgsStatic.busybox;
     inherit system;

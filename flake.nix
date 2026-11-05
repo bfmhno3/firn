@@ -4,15 +4,25 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs =
-    { nixpkgs, ... }:
+    { self, nixpkgs, ... }:
     let
       systems = [
         "x86_64-linux"
         "aarch64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      # 每个系统一份 pkgs；第 10 章起它会带上 Firn 自己的 overlay。
-      pkgsFor = system: nixpkgs.legacyPackages.${system};
+      # 每个系统一份 pkgs，带上 Firn 自己的 overlay。
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          overlays = [ self.overlays.default ];
+        };
+      packagesFor = system: {
+        inherit (pkgsFor system) firn-hello;
+        firn-hello-hallo = (pkgsFor system).firn-hello.override { greeting = "Hallo"; };
+        default = (pkgsFor system).firn-hello;
+      };
       devShellFor =
         system:
         let
@@ -112,11 +122,21 @@
             grep -q '^[0-9]* cairn$' ${mini.site}/index.html
             echo ok > $out
           '';
-        };
+        }
+        # 每个包一个 pkg-<name> 检查；default 只是别名，不重复。
+        // pkgs.lib.mapAttrs' (name: pkg: pkgs.lib.nameValuePair "pkg-${name}" pkg) (
+          removeAttrs (packagesFor system) [ "default" ]
+        );
     in
     {
       # Firn 自己的库，不依赖 nixpkgs。
       lib = firnLib;
+
+      # 把 Firn 的包加进 nixpkgs：import nixpkgs { overlays = [ firn.overlays.default ]; }。
+      overlays.default = import ./overlays;
+
+      # nix build .#firn-hello 等。
+      packages = forAllSystems packagesFor;
 
       # nix develop 进入的开发环境。
       devShells = nixpkgs.lib.mapAttrs (_: devShell: { default = devShell; }) devShells;
