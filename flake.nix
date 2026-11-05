@@ -19,7 +19,14 @@
           overlays = [ self.overlays.default ];
         };
       packagesFor = system: {
-        inherit (pkgsFor system) firn-hello;
+        inherit (pkgsFor system)
+          firn-hello
+          cairn
+          sift
+          pebble
+          firn-tools
+          cairn-report
+          ;
         firn-hello-hallo = (pkgsFor system).firn-hello.override { greeting = "Hallo"; };
         default = (pkgsFor system).firn-hello;
       };

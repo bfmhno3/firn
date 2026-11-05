@@ -42,6 +42,8 @@ flake.nix, flake.lock   the flake; nixpkgs is pinned in the lock file
 nix/pins.nix            reads flake.lock, fetches the same nixpkgs without flakes
 nix/pkgs.nix            `import` of that nixpkgs, for labs
 default.nix, shell.nix  legacy entry points: `nix-build -A mini.hello`, `nix-shell`
+pkgs/                   real packages, one `package.nix` each: firn-hello, cairn, sift, pebble, firn-tools, cairn-report
+overlays/default.nix    adds every `pkgs/*` package to nixpkgs
 scripts/chapter.sh      lab runner
 lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, strings, importers, sources, readme, lists, generators, debug
 data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
@@ -67,7 +69,9 @@ Lab conventions, enforced by `scripts/chapter.sh`:
 | --- | --- |
 | `lib` | Firn's own library (no nixpkgs) |
 | `devShells.<sys>.default` | the dev shell: `nix develop` |
-| `checks.<sys>.{dev-shell,lib-tests,readme-table,mini-site}` | `nix flake check` |
+| `packages.<sys>.{default,firn-hello,firn-hello-hallo,cairn,sift,pebble,firn-tools,cairn-report}` | `nix build .#cairn` |
+| `overlays.default` | the `pkgs/*` packages as a nixpkgs overlay |
+| `checks.<sys>.{dev-shell,lib-tests,readme-table,mini-site,pkg-*}` | `nix flake check`; one `pkg-<name>` build per package |
 | `legacyPackages.<sys>.mini` | the from-scratch package set |
 | `apps.<sys>.mini-hello` | `nix run .#mini-hello` prints the mini greeting |
 | `formatter.<sys>` | `nixfmt-tree`: `nix fmt` |

@@ -7,7 +7,14 @@ let
   pkgs = import ./nix/pkgs.nix { inherit system; };
 in
 {
-  inherit (pkgs) firn-hello;
+  inherit (pkgs)
+    firn-hello
+    cairn
+    sift
+    pebble
+    firn-tools
+    cairn-report
+    ;
   mini = import ./mini {
     busybox = pkgs.pkgsStatic.busybox;
     inherit system;
