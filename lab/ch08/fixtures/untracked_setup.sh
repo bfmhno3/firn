@@ -16,7 +16,7 @@ setup_clone() {
   cd "${LAB_TMP}/clone" || return 1
   echo '"extra output from an untracked file"' >extra.nix
   # flake.nix is tracked, so this edit is visible; extra.nix is not.
-  sed -i 's|^      lib = firnLib;|      extra = import ./extra.nix;\n      lib = firnLib;|' flake.nix
+  sed -i 's|^      lib = firnLib;|      lib = firnLib;\n      extra = import ./extra.nix;|' flake.nix
   echo '== git status --short'
   git status --short
 }
