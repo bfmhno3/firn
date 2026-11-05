@@ -11,10 +11,12 @@
         "aarch64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+      # 每个系统一份 pkgs；第 10 章起它会带上 Firn 自己的 overlay。
+      pkgsFor = system: nixpkgs.legacyPackages.${system};
       devShellFor =
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
         in
         pkgs.mkShell {
           packages = with pkgs; [
@@ -65,13 +67,13 @@
       miniFor =
         system:
         import ./mini {
-          busybox = nixpkgs.legacyPackages.${system}.pkgsStatic.busybox;
+          busybox = (pkgsFor system).pkgsStatic.busybox;
           inherit system;
         };
       checksFor =
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
           failures = import ./tests/lib.nix;
           mini = miniFor system;
         in
@@ -113,11 +115,30 @@
         };
     in
     {
+      # Firn 自己的库，不依赖 nixpkgs。
       lib = firnLib;
+
+      # nix develop 进入的开发环境。
       devShells = nixpkgs.lib.mapAttrs (_: devShell: { default = devShell; }) devShells;
+
+      # nix flake check 构建的东西。
       checks = forAllSystems checksFor;
+
+      # 不属于 packages 的包集；mini 是第 7 章的从零包集。
       legacyPackages = forAllSystems (system: {
         mini = miniFor system;
       });
+
+      # nix run .#mini-hello：运行 mini 的 hello。
+      apps = forAllSystems (system: {
+        mini-hello = {
+          type = "app";
+          program = "${(miniFor system).hello}/bin/hello";
+          meta.description = "Print the greeting of the mini package set";
+        };
+      });
+
+      # nix fmt：格式化整个仓库。
+      formatter = forAllSystems (system: (pkgsFor system).nixfmt-tree);
     };
 }

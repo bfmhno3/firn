@@ -58,6 +58,19 @@ Lab conventions, enforced by `scripts/chapter.sh`:
 - `*_host.*` is skipped when `CI=true`.
 - Flake-based labs only see git-tracked files: run `git add -A` before `make chNN`.
 
+## Flake outputs
+
+`nix flake show` lists them; every output has a comment in `flake.nix`. `<sys>` is `x86_64-linux` or `aarch64-linux`.
+
+| Output | Contents |
+| --- | --- |
+| `lib` | Firn's own library (no nixpkgs) |
+| `devShells.<sys>.default` | the dev shell: `nix develop` |
+| `checks.<sys>.{dev-shell,lib-tests,readme-table,mini-site}` | `nix flake check` |
+| `legacyPackages.<sys>.mini` | the from-scratch package set |
+| `apps.<sys>.mini-hello` | `nix run .#mini-hello` prints the mini greeting |
+| `formatter.<sys>` | `nixfmt-tree`: `nix fmt` |
+
 ## Running
 
 ```bash
