@@ -50,12 +50,13 @@ echo
 echo "== pitfall: nix-env -i hello (by name)"
 nix-env -p "${profile}" -f "${pkgs}" -i hello 2>&1 | grep -E "^(replacing|installing)"
 nix-env -p "${profile}" -q
-echo "(the same package was replaced, and it cost a new generation)"
+echo "(replaced by itself: the environment is identical, so no new generation)"
 nix-env -p "${profile}" --list-generations | sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]+/<date>/'
 
 echo
 echo "== uninstall, then roll back"
 nix-env -p "${profile}" -e hello 2>&1 | grep -v '^building'
 echo "installed after -e: $(nix-env -p "${profile}" -q | wc -l)"
+nix-env -p "${profile}" --list-generations | sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]+/<date>/'
 nix-env -p "${profile}" --rollback 2>&1
 echo "installed after rollback: $(nix-env -p "${profile}" -q | tr '\n' ' ')"
