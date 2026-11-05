@@ -4,9 +4,11 @@
 # and with `--option eval-cache false`, for two commands:
 #   nix eval --raw .#legacyPackages.<system>.mini.site.outPath
 #   nix path-info --derivation .#legacyPackages.<system>.mini.site
-# A dirty git tree has no fingerprint and therefore no eval cache, so the
-# script clones the repository (clean tree) into LAB_TMP and gives every cold
-# run its own, empty XDG_CACHE_HOME. Timings are in ms; nothing is asserted.
+# The cache is keyed by the flake's fingerprint (for git: the revision, plus a
+# hash of the dirty files when the tree is dirty; Nix 2.34.9
+# src/libfetchers/git.cc, getFingerprint). The script clones the repository
+# into LAB_TMP so that the key is a fixed revision, and gives every cold run
+# its own, empty XDG_CACHE_HOME. Timings are in ms; nothing is asserted.
 
 set -o errexit
 set -o nounset
