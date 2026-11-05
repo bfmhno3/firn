@@ -2,8 +2,10 @@
 #
 # The build environment of the aarch64 cross build (`nix develop` on
 # pkgsCross.aarch64-multiplatform.firn-hello). $CC and friends carry the
-# target triple as a prefix; the unprefixed gcc/cc on PATH are still the
-# build platform's compilers. `-dumpmachine` says which is which.
+# target triple as a prefix. The cross environment itself puts no unprefixed
+# gcc/cc on PATH (under `env -i` `type -p gcc cc` finds nothing); the two
+# x86_64 lines below come from the dev shell's gcc leaking through
+# `nix develop`, which keeps the caller's PATH.
 
 set -o errexit
 set -o nounset

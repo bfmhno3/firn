@@ -33,7 +33,9 @@
           default = (pkgsFor system).firn-hello;
         }
         # overlay 会一路带进 pkgsStatic、pkgsMusl、pkgsCross.*：它们由 nixpkgsFun
-        # 重新 import nixpkgs，参数是 args // newArgs，overlays 在 args 里，
+        # 重新 import nixpkgs，参数是 args // newArgs：pkgsCross 不动 overlays，
+        # 原样沿用 args 里的；pkgsStatic、pkgsMusl 先替换 overlays，再把调用者的
+        # overlays 追加回去（stage.nix、variants.nix 里的 `++ overlays`）。
         # 所以这些包集里的 firn-hello 仍然是 Firn 的。
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           firn-hello-static = (pkgsFor system).pkgsStatic.firn-hello;

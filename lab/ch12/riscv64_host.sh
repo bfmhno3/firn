@@ -3,8 +3,9 @@
 # pkgsCross.riscv64.firn-hello: a second cross target without any change to
 # the package. The cross toolchain comes from the binary cache; the lab
 # prints the wall time of the build (volatile) and the build plan, so the
-# post can say whether a toolchain was built or substituted. Host only
-# because the first run downloads about 130 MiB.
+# post can say whether a toolchain was built or substituted. Host only:
+# on a cold store nix fetched 130.6 MiB (15 paths) and built only firn-hello
+# itself; on a warm store the build plan is empty and prints nothing.
 
 set -o errexit
 set -o nounset

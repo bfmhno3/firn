@@ -1,7 +1,9 @@
 # firn-hello 的一份拷贝：pkg-config 从 nativeBuildInputs 挪到了 buildInputs。
-# 原生构建里两者效果一样；交叉构建里 buildInputs 里的 pkg-config 是 aarch64
-# 版本；strictDeps = true 时 setup.sh 只把 hostOffset <= -1 的依赖（即
-# nativeBuildInputs）的 bin 放进 PATH，所以 Makefile 里的 pkg-config 找不到。
+# strictDeps = true 时 setup.sh 只把 hostOffset <= -1 的依赖（即
+# nativeBuildInputs）的 bin 放进 PATH，所以 Makefile 里的 pkg-config 找不到；
+# 这和交叉无关：同样的拷贝做原生构建，strictDeps = true 也以同样的错误失败，
+# 只有 strictDeps = false 才通过。交叉构建里 buildInputs 里的 pkg-config
+# 还是 aarch64 版本。
 # keepZlibLibs 控制是否保留 package.nix 里的 ZLIB_LIBS=-lz。
 {
   keepZlibLibs ? true,
