@@ -70,6 +70,7 @@ Lab conventions, enforced by `scripts/chapter.sh`:
 | `lib` | Firn's own library (no nixpkgs) |
 | `devShells.<sys>.default` | the dev shell: `nix develop` |
 | `packages.<sys>.{default,firn-hello,firn-hello-hallo,cairn,sift,pebble,firn-tools,cairn-report}` | `nix build .#cairn` |
+| `packages.x86_64-linux.{firn-hello-static,firn-hello-musl,firn-hello-aarch64}` | firn-hello from `pkgsStatic`, `pkgsMusl` and `pkgsCross.aarch64-multiplatform` |
 | `overlays.default` | the `pkgs/*` packages as a nixpkgs overlay |
 | `checks.<sys>.{dev-shell,lib-tests,readme-table,mini-site,pkg-*}` | `nix flake check`; one `pkg-<name>` build per package |
 | `legacyPackages.<sys>.mini` | the from-scratch package set |

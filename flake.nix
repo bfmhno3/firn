@@ -18,18 +18,28 @@
           inherit system;
           overlays = [ self.overlays.default ];
         };
-      packagesFor = system: {
-        inherit (pkgsFor system)
-          firn-hello
-          cairn
-          sift
-          pebble
-          firn-tools
-          cairn-report
-          ;
-        firn-hello-hallo = (pkgsFor system).firn-hello.override { greeting = "Hallo"; };
-        default = (pkgsFor system).firn-hello;
-      };
+      packagesFor =
+        system:
+        {
+          inherit (pkgsFor system)
+            firn-hello
+            cairn
+            sift
+            pebble
+            firn-tools
+            cairn-report
+            ;
+          firn-hello-hallo = (pkgsFor system).firn-hello.override { greeting = "Hallo"; };
+          default = (pkgsFor system).firn-hello;
+        }
+        # overlay 会一路带进 pkgsStatic、pkgsMusl、pkgsCross.*：它们由 nixpkgsFun
+        # 重新 import nixpkgs，参数是 args // newArgs，overlays 在 args 里，
+        # 所以这些包集里的 firn-hello 仍然是 Firn 的。
+        // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          firn-hello-static = (pkgsFor system).pkgsStatic.firn-hello;
+          firn-hello-musl = (pkgsFor system).pkgsMusl.firn-hello;
+          firn-hello-aarch64 = (pkgsFor system).pkgsCross.aarch64-multiplatform.firn-hello;
+        };
       devShellFor =
         system:
         let
