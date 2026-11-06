@@ -37,12 +37,22 @@ echo "== git diff"
 git diff
 
 echo
+echo "== nix-build -A cairn.tests.version (after the bump)"
+status=0
+log="$(nix-build -A cairn.tests.version --no-out-link 2>&1)" || status=$?
+grep -E '^Version string|^cairn |^error: Cannot build|Reason' <<<"${log}" \
+  | sed -E 's|/nix/store/[a-z0-9]{32}-||g'
+echo "exit status: ${status}"
+
+echo
 echo "== why"
 cat <<'TEXT'
 nix-update does not fail: it takes the first capture group of the newest
 tag (ch10) as the version and writes version = "10". src.tag is the literal
-"ch10", so the source and the hash do not change; the package now claims a
-version that `cairn --version` (0.1.0) contradicts, and passthru.tests.version
-would fail. nix-update expects a tag derived from the version, such as
+"ch10", so the source and the hash do not change. The package now claims a
+version that `cairn --version` (0.1.0) contradicts, and
+passthru.tests.version, which uses testVersion's defaults (the package's own
+version and `--version`), fails with: Version string '10' not found!
+nix-update expects a tag derived from the version, such as
 tag = "v${finalAttrs.version}" with upstream tags like v0.1.0.
 TEXT

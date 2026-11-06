@@ -2,7 +2,10 @@
 #
 # Asks channels.nixos.org which nixpkgs commit each channel points at, asks
 # GitHub for that commit's date, and prints how old each channel is today
-# and how far it is from the revision Firn pins (flake.lock). The URL
+# and how many days its commit date is after the pin's commit date (flake.lock).
+# That is a difference of two dates, not git ancestry: a release channel such
+# as nixos-26.05 lives on release-26.05, which has diverged from master, so
+# `gh api repos/NixOS/nixpkgs/compare/<pin>...<rev>` reports it as diverged. The URL
 # redirects to releases.nixos.org, hence curl -L. Read-only network use; the
 # GitHub calls go through `gh api` and are skipped with a message when the
 # rate limit is hit. Every number here moves every day.
@@ -61,7 +64,7 @@ main() {
     epoch="$(commit_epoch "${rev}")"
     echo "volatile: ${ch}: ${rev}"
     echo "volatile: ${ch}: age in days $(days_between "${now}" "${epoch}")"
-    echo "volatile: ${ch}: days ahead of the pin $(days_between "${epoch}" "${pin_epoch}")"
+    echo "volatile: ${ch}: commit date minus pin commit date, days $(days_between "${epoch}" "${pin_epoch}")"
   done
 }
 

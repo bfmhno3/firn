@@ -32,6 +32,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [ makeWrapper ];
 
+  # patchShebangs 在 PATH 上找解释器：buildInputs 里的 bash 排在 stdenv 自带的
+  # bash 之前，所以 #!/usr/bin/env bash 会指向 pkgs.bash (bash-interactive)。
+  # 去掉这一行也会被改写，只是改成 stdenv 的 bash，闭包小约 7.6 MiB。
   buildInputs = [ bash ];
 
   dontBuild = true;
@@ -42,6 +45,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
+  # wrapProgram 把 PATH 固定到运行时依赖，包不再依赖调用者的环境。
   postFixup = ''
     wrapProgram "$out/bin/cairn" --prefix PATH : ${
       lib.makeBinPath [
@@ -67,11 +71,15 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     util-linux
     gawk
   ];
+  # 构建沙箱里没有 /usr/bin/env，测试直接运行 bin/cairn，先改写它的 shebang。
+  # snapshot.bats 里的假 rsync 也是 #!/usr/bin/env bash，一并改掉。
   preCheck = ''
     patchShebangs bin
     substituteInPlace tests/snapshot.bats \
       --replace-fail '#!/usr/bin/env bash' '#!${bash}/bin/bash'
   '';
+  # 这里只跑 cli、config、prune、snapshot、verify_diff、report 六个文件（81 个测试）；
+  # install.bats 在沙箱里不能通过（34/35），completion 和 lock_signal 实测能通过，但没有列入。
   checkPhase = ''
     runHook preCheck
     bats --formatter pretty tests/cli.bats tests/config.bats tests/prune.bats \
@@ -81,8 +89,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   passthru.tests.version = testers.testVersion {
     package = finalAttrs.finalPackage;
-    command = "cairn --version";
-    version = "0.1.0";
   };
 
   meta = {

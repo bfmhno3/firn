@@ -17,7 +17,7 @@ bash "${FIRN_ROOT}/scripts/nixpkgs-worktree.sh" >/dev/null 2>&1
 cd "${FIRN_NIXPKGS}"
 
 echo "== ls pkgs/by-name | wc -l (entries of by-name, README.md included)"
-# shellcheck disable=SC2012 # the brief counts with ls; find gives 759 too
+# shellcheck disable=SC2012 # plain `ls | wc -l`; find counts 758 shards (no README.md)
 ls pkgs/by-name | wc -l
 
 echo
