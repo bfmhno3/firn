@@ -1,7 +1,7 @@
 CC ?= cc
 PREFIX ?= /usr/local
 
-CFLAGS ?= -O2 -Wall -Wextra
+CFLAGS ?= -g -O2 -Wall -Wextra
 
 .PHONY: all install clean
 

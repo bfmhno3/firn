@@ -8,7 +8,9 @@
 # build the profile), then the median of 5 further calls with the cache, then
 # the median of 5 calls with plain direnv (no nix-direnv: the built-in
 # `use flake` runs `nix print-dev-env` again on every call). Milliseconds and
-# ratios are volatile.
+# ratios are volatile. At the end the project is deleted and a read-only
+# `nix-store --gc --print-roots` drops the dangling links that nix-direnv's
+# out-links left in /nix/var/nix/gcroots/auto.
 
 set -o errexit
 set -o nounset
@@ -57,6 +59,9 @@ main() {
   printf 'volatile: plain direnv (med)      %6d ms\n' "${plain}"
   awk -v a="${plain}" -v b="${cached}" \
     'BEGIN { printf "volatile: plain / cached          %6.1f x\n", a / b }'
+
+  rm -rf "${LAB_TMP}/proj"
+  nix-store --gc --print-roots >/dev/null 2>&1
 }
 
 main "$@"
