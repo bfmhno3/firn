@@ -5,6 +5,7 @@
 # 类型只有 str、int、bool、listOf、attrsOf；优先级和 nixpkgs 一致：
 # mkDefault 1000，普通定义 100，mkForce 50，选项默认值 1500。
 # 同优先级：列表拼接，属性集按名合并，标量必须相等。
+# 同优先级的列表定义，后写的模块排在前面，和 lib.evalModules 一致。
 # 故意没做的事（lib/modules.nix 做了）：mkMerge、mkOrder、submodule、
 # 未声明选项的报错、_module.args、定义位置。
 let
@@ -78,10 +79,15 @@ let
   resolve =
     def:
     if isIf def then
-      let
-        inner = resolve def.content;
-      in
-      inner // { active = def.condition && inner.active; }
+      # 条件为假时不碰 content：mkIf false (throw "…") 是安全的。
+      if def.condition then
+        resolve def.content
+      else
+        {
+          active = false;
+          priority = plainPriority;
+          value = null;
+        }
     else if isOverride def then
       (resolve def.content) // { inherit (def) priority; }
     else
@@ -130,23 +136,26 @@ let
         else
           m;
 
+      # 和 lib.evalModules 一样先收顶层模块，再收它们的 imports（逐层），
+      # 定义按这个顺序倒过来排：同优先级的列表定义，后写的模块在前。
       collect =
         ms:
-        builtins.concatMap (
-          raw:
-          let
-            m = applyModule raw;
-          in
-          collect (m.imports or [ ]) ++ [ m ]
-        ) ms;
+        let
+          applied = map applyModule ms;
+          next = builtins.concatMap (m: m.imports or [ ]) applied;
+        in
+        applied ++ (if next == [ ] then [ ] else collect next);
 
       all = collect modules;
+      reversed = builtins.genList (i: builtins.elemAt all (builtins.length all - 1 - i)) (
+        builtins.length all
+      );
       options = mergeDeclarations [ ] (map (m: m.options or { }) all);
 
       evalOption =
         loc: opt:
         let
-          fromModules = builtins.concatMap (m: select loc (m.config or { })) all;
+          fromModules = builtins.concatMap (m: select loc (m.config or { })) reversed;
           fromDefault = if opt ? default then [ (mkOverride defaultPriority opt.default) ] else [ ];
           resolved = builtins.filter (d: d.active) (map resolve (fromModules ++ fromDefault));
           best = builtins.foldl' (a: d: if d.priority < a then d.priority else a) 1000000 resolved;

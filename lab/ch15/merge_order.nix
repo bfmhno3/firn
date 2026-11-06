@@ -1,5 +1,7 @@
-# 合并顺序：同一个列表选项被三个模块定义。默认顺序号 1000，
-# mkBefore 是 mkOrder 500，mkAfter 是 mkOrder 1500；同顺序号保持模块顺序。
+# 合并顺序：同一个列表选项被五个模块定义。默认顺序号 1000，
+# mkBefore 是 mkOrder 500，mkAfter 是 mkOrder 1500；顺序号小的在前。
+# 顺序号相同的，后写的模块排在前面（plain-2 在 plain-1 前面）：
+# 求值前 lib/modules.nix:274 对收集到的模块 reverseList。
 # lines 类型按同样的顺序拼接成多行文本。
 let
   pkgs = import ../../nix/pkgs.nix { };
