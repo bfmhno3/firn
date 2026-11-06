@@ -203,6 +203,13 @@
                 echo ok > $out
               '';
         }
+        # 第 16 章：cairn 的 NixOS 模块在虚拟机里跑一遍，需要 KVM。
+        // pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          cairn-vm = import ./nixos/tests/cairn.nix {
+            inherit pkgs;
+            cairnModule = self.nixosModules.default;
+          };
+        }
         # 每个包一个 pkg-<name> 检查；default 只是别名，不重复。
         // pkgs.lib.mapAttrs' (name: pkg: pkgs.lib.nameValuePair "pkg-${name}" pkg) (
           removeAttrs (packagesFor system) [ "default" ]
@@ -267,6 +274,23 @@
           meta.description = "Print the greeting of the mini package set";
         };
       });
+
+      # 第 16 章：services.cairn，以及用它搭的实验主机（只求值和构建，不装到真机）。
+      nixosModules = {
+        cairn = {
+          imports = [ ./nixos/modules/cairn.nix ];
+          nixpkgs.overlays = [ self.overlays.default ];
+        };
+        default = self.nixosModules.cairn;
+      };
+
+      nixosConfigurations.lab = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          self.nixosModules.default
+          ./nixos/hosts/lab.nix
+        ];
+      };
 
       # nix fmt：格式化整个仓库。
       formatter = forAllSystems (system: (pkgsFor system).nixfmt-tree);
