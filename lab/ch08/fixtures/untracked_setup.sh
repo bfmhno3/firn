@@ -16,7 +16,12 @@ setup_clone() {
   cd "${LAB_TMP}/clone" || return 1
   echo '"extra output from an untracked file"' >extra.nix
   # flake.nix is tracked, so this edit is visible; extra.nix is not.
-  sed -i 's|^      lib = firnLib;|      lib = firnLib;\n      extra = import ./extra.nix;|' flake.nix
+  # The anchor is the overlays.default output, which stays in flake.nix from chapter 10 on.
+  sed -i 's|^      overlays.default = import ./overlays;|      extra = import ./extra.nix;\n&|' flake.nix
+  if ! grep -q 'extra = import ./extra.nix;' flake.nix; then
+    echo 'untracked_setup: flake.nix anchor not found' >&2
+    return 1
+  fi
   echo '== git status --short'
   git status --short
 }
