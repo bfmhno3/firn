@@ -4,21 +4,18 @@
 # `nix flake init -t "${FIRN_ROOT}#c"` (its welcomeText is printed by nix),
 # `git init && git add -A` (flakes only see tracked files), build, and run
 # the binary. The template's flake.nix says github:NixOS/nixpkgs/nixos-unstable;
-# the lab overrides that input with the revision and hash from firn's own
-# flake.lock, so nothing is downloaded and the result matches the rest of the
-# series. Build output paths are volatile.
+# the lab pins that input to the nixpkgs source of nix/pins.nix, offline (see
+# fixtures/pin_nixpkgs.sh), so nothing is downloaded and the result matches
+# the rest of the series. Build output paths are volatile.
 
 set -o errexit
 set -o nounset
 set -o pipefail
 
-readonly LOCK="${FIRN_ROOT}/flake.lock"
+# shellcheck source=lab/ch13/fixtures/pin_nixpkgs.sh
+source "${FIRN_ROOT}/lab/ch13/fixtures/pin_nixpkgs.sh"
 
 main() {
-  local rev nar_hash
-  rev="$(jq -r '.nodes.nixpkgs.locked.rev' "${LOCK}")"
-  nar_hash="$(jq -r '.nodes.nixpkgs.locked.narHash' "${LOCK}")"
-
   echo "== templates of the firn flake"
   nix eval --json "${FIRN_ROOT}#templates" \
     --apply 'ts: builtins.mapAttrs (_: t: t.description) ts' | jq .
@@ -35,8 +32,7 @@ main() {
 
   echo
   echo "== nix build"
-  nix flake lock --override-input nixpkgs \
-    "github:NixOS/nixpkgs/${rev}?narHash=${nar_hash}" 2>/dev/null
+  pin_nixpkgs::lock
   git add -A
   local out
   out="$(nix build --no-link --print-out-paths 2>/dev/null)"

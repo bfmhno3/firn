@@ -7,6 +7,9 @@
 # LAB_TMP, so `direnv allow` here never touches the real allow list. Sourced,
 # not executed.
 
+# shellcheck source=lab/ch13/fixtures/pin_nixpkgs.sh
+source "${FIRN_ROOT}/lab/ch13/fixtures/pin_nixpkgs.sh"
+
 #######################################
 # Create the project and the direnv directories.
 # Globals:
@@ -20,10 +23,6 @@
 #######################################
 direnv_project::setup() {
   local mode="$1"
-  local rev nar_hash
-  rev="$(jq -r '.nodes.nixpkgs.locked.rev' "${FIRN_ROOT}/flake.lock")"
-  nar_hash="$(jq -r '.nodes.nixpkgs.locked.narHash' "${FIRN_ROOT}/flake.lock")"
-
   export XDG_CONFIG_HOME="${LAB_TMP}/xdg/config"
   export XDG_DATA_HOME="${LAB_TMP}/xdg/data"
   export XDG_CACHE_HOME="${LAB_TMP}/xdg/cache"
@@ -38,8 +37,7 @@ direnv_project::setup() {
   nix flake init -t "${FIRN_ROOT}#c" >/dev/null 2>&1
   git init -q
   git add -A
-  nix flake lock --override-input nixpkgs \
-    "github:NixOS/nixpkgs/${rev}?narHash=${nar_hash}" 2>/dev/null
+  pin_nixpkgs::lock
   git add -A
   printf 'use flake\n' >.envrc
   # 外层 shell 如果也在用 direnv，这些变量会让 direnv 以为已经加载过。

@@ -6,8 +6,9 @@
 # fixtures/rust-template (flake.nix with rustPlatform.buildRustPackage and a
 # mkShell with cargo, clippy and rustfmt, plus Cargo.toml, a Cargo.lock with
 # no dependencies, src/main.rs and .envrc). The lab inits a project from it,
-# pins nixpkgs to firn's lock, builds, runs the binary and checks the dev
-# shell. Store paths and tool versions are volatile.
+# pins nixpkgs offline to the source of nix/pins.nix (fixtures/pin_nixpkgs.sh),
+# builds, runs the binary and checks the dev shell. Store paths and tool
+# versions are volatile.
 
 set -o errexit
 set -o nounset
@@ -15,11 +16,10 @@ set -o pipefail
 
 readonly FIXTURE="${FIRN_ROOT}/lab/ch13/fixtures/rust-template"
 
-main() {
-  local rev nar_hash
-  rev="$(jq -r '.nodes.nixpkgs.locked.rev' "${FIRN_ROOT}/flake.lock")"
-  nar_hash="$(jq -r '.nodes.nixpkgs.locked.narHash' "${FIRN_ROOT}/flake.lock")"
+# shellcheck source=lab/ch13/fixtures/pin_nixpkgs.sh
+source "${FIRN_ROOT}/lab/ch13/fixtures/pin_nixpkgs.sh"
 
+main() {
   echo "== a temporary flake with a third template"
   mkdir -p "${LAB_TMP}/tpl/templates"
   cp -r "${FIXTURE}" "${LAB_TMP}/tpl/templates/rust"
@@ -49,8 +49,7 @@ NIX
 
   echo
   echo "== nix build"
-  nix flake lock --override-input nixpkgs \
-    "github:NixOS/nixpkgs/${rev}?narHash=${nar_hash}" 2>/dev/null
+  pin_nixpkgs::lock
   git add -A
   local out
   out="$(nix build --no-link --print-out-paths 2>/dev/null)"
