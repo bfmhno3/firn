@@ -169,6 +169,39 @@
             grep -q '^[0-9]* cairn$' ${mini.site}/index.html
             echo ok > $out
           '';
+
+          # 模块系统：用 nixpkgs 的 evalModules 求值 cairn-settings，
+          # 渲染出的 configText 必须逐字等于 tests/fixtures/cairn.conf。
+          cairn-settings =
+            let
+              evaluated = pkgs.lib.evalModules {
+                modules = [
+                  ./modules/cairn-settings.nix
+                  {
+                    cairn = {
+                      repo = "/var/lib/cairn/repo";
+                      sources = [
+                        "/srv/data"
+                        "/etc"
+                      ];
+                      excludes = [ "*.tmp" ];
+                      keep.last = 10;
+                      keep.weekly = 2;
+                    };
+                  }
+                ];
+              };
+            in
+            pkgs.runCommand "firn-cairn-settings"
+              {
+                expected = ./tests/fixtures/cairn.conf;
+                actual = evaluated.config.cairn.configText;
+                passAsFile = [ "actual" ];
+              }
+              ''
+                diff -u "$expected" "$actualPath" >&2
+                echo ok > $out
+              '';
         }
         # 每个包一个 pkg-<name> 检查；default 只是别名，不重复。
         // pkgs.lib.mapAttrs' (name: pkg: pkgs.lib.nameValuePair "pkg-${name}" pkg) (
@@ -176,8 +209,11 @@
         );
     in
     {
-      # Firn 自己的库，不依赖 nixpkgs。
-      lib = firnLib;
+      # Firn 自己的库，不依赖 nixpkgs；第 15 章加上 evalMini 和 cairn 的设置模块。
+      lib = firnLib // {
+        inherit (import ./modules/mini-modules.nix) evalMini;
+        modules.cairnSettings = ./modules/cairn-settings.nix;
+      };
 
       # 把 Firn 的包加进 nixpkgs：import nixpkgs { overlays = [ firn.overlays.default ]; }。
       overlays.default = import ./overlays;
