@@ -91,6 +91,34 @@
           '';
         };
       devShells = forAllSystems devShellFor;
+      # 第 13 章：C 和 Python 项目的开发环境。c 借 firn-hello 的构建依赖，
+      # python 不需要 C 编译器，用 mkShellNoCC。
+      projectShellsFor =
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        {
+          c = pkgs.mkShell {
+            inputsFrom = [ pkgs.firn-hello ];
+            packages = with pkgs; [
+              gdb
+              clang-tools
+            ];
+          };
+          python = pkgs.mkShellNoCC {
+            packages = with pkgs; [
+              (python3.withPackages (ps: [
+                ps.sqlalchemy
+                ps.typer
+                ps.rich
+                ps.pytest
+              ]))
+              ruff
+              uv
+            ];
+          };
+        };
       firnLib = import ./lib;
       inherit (firnLib.importTOML ./data/chapters.toml) chapters;
       miniFor =
@@ -158,7 +186,34 @@
       packages = forAllSystems packagesFor;
 
       # nix develop 进入的开发环境。
-      devShells = nixpkgs.lib.mapAttrs (_: devShell: { default = devShell; }) devShells;
+      devShells = forAllSystems (system: { default = devShells.${system}; } // projectShellsFor system);
+
+      # nix flake init -t github:bfmhno3/firn#python 等。
+      templates = {
+        c = {
+          path = ./templates/c;
+          description = "C project: stdenv package, Makefile and mkShell dev shell";
+          welcomeText = ''
+            Created a C project. Next steps:
+
+            - `git init && git add -A`
+            - `nix build && ./result/bin/hello-c`
+            - `nix develop`
+          '';
+        };
+        python = {
+          path = ./templates/python;
+          description = "Python project: hatchling package built with buildPythonApplication";
+          welcomeText = ''
+            Created a Python project. Next steps:
+
+            - `git init && git add -A`
+            - `nix run`
+            - `nix develop`
+          '';
+        };
+        default = self.templates.c;
+      };
 
       # nix flake check 构建的东西。
       checks = forAllSystems checksFor;
