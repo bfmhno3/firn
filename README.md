@@ -45,6 +45,8 @@ default.nix, shell.nix  legacy entry points: `nix-build -A mini.hello`, `nix-she
 pkgs/                   real packages, one `package.nix` each: firn-hello, cairn, sift, pebble, firn-tools, cairn-report
 overlays/default.nix    adds every `pkgs/*` package to nixpkgs
 scripts/chapter.sh      lab runner
+scripts/nixpkgs-worktree.sh  builds a local nixpkgs worktree (`FIRN_NIXPKGS`, default `~/.cache/firn/nixpkgs`) with one commit adding `contrib/nixpkgs/`
+contrib/nixpkgs/        cairn written as a nixpkgs `pkgs/by-name` package (chapter 14; never submitted)
 lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, strings, importers, sources, readme, lists, generators, debug
 data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
 tests/lib.nix           lib tests on `runTests`: `nix eval --file tests/lib.nix` prints `[ ]`; also the flake check `lib-tests`
