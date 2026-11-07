@@ -1,12 +1,20 @@
 {
   description = "firn: companion code for the series 用 Firn 从零学 Nix";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-  # 第 17 章：sops-nix，锁在 2026-08-23 之前 master 的最后一个提交。
-  inputs.sops-nix = {
-    url = "github:Mic92/sops-nix";
-    inputs.nixpkgs.follows = "nixpkgs";
+    # 第 17 章：sops-nix，锁在 2026-08-23 之前 master 的最后一个提交。
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # 第 18 章：Home Manager，同样锁在 2026-08-23 之前 master 的最后一个提交。
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -14,6 +22,7 @@
       self,
       nixpkgs,
       sops-nix,
+      home-manager,
       ...
     }:
     let
@@ -28,6 +37,16 @@
         import nixpkgs {
           inherit system;
           overlays = [ self.overlays.default ];
+        };
+      # 第 18 章：独立的 Home Manager 配置，pkgs 带 Firn 的 overlay。
+      homeFor =
+        system:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = pkgsFor system;
+          modules = [
+            self.homeModules.cairn
+            ./home/demo.nix
+          ];
         };
       packagesFor =
         system:
@@ -213,6 +232,27 @@
                 diff -u "$expected" "$actualPath" >&2
                 echo ok > $out
               '';
+
+          # Home Manager：demo 配置生成的 cairn.conf 必须逐字等于下面的文本。
+          home-files =
+            let
+              home = homeFor system;
+            in
+            pkgs.runCommand "firn-home-files"
+              {
+                homeFiles = home.config.home-files;
+                expected = pkgs.writeText "expected-cairn.conf" ''
+                  repo = /home/demo/.local/share/cairn/repo
+                  source = /home/demo/Documents
+                  keep_last = 5
+                  keep_daily = 7
+                  keep_weekly = 4
+                '';
+              }
+              ''
+                diff -u "$expected" "$homeFiles/.config/cairn/cairn.conf" >&2
+                echo ok > $out
+              '';
         }
         # 第 16 章：cairn 的 NixOS 模块在虚拟机里跑一遍，需要 KVM。
         // pkgs.lib.optionalAttrs (system == "x86_64-linux") {
@@ -225,6 +265,16 @@
           secrets-vm = import ./nixos/tests/secrets.nix {
             inherit pkgs;
             sopsModule = sops-nix.nixosModules.sops;
+          };
+
+          # 第 18 章：Home Manager 作为 NixOS 模块，用户级定时器在虚拟机里跑。
+          # useGlobalPkgs 下用户配置里的 nixpkgs.overlays 不生效，还会触发求值警告，
+          # 所以 overlay 加在系统上，用户只导入不带 overlay 的原始模块。
+          home-vm = import ./nixos/tests/home.nix {
+            inherit pkgs;
+            homeManagerModule = home-manager.nixosModules.home-manager;
+            cairnHomeModule = ./home/modules/cairn.nix;
+            overlay = self.overlays.default;
           };
         }
         # 每个包一个 pkg-<name> 检查；default 只是别名，不重复。
@@ -308,6 +358,17 @@
           ./nixos/hosts/lab.nix
         ];
       };
+
+      # 第 18 章：programs.cairn，以及用它搭的独立配置 demo（只构建，不激活）。
+      homeModules = {
+        cairn = {
+          imports = [ ./home/modules/cairn.nix ];
+          nixpkgs.overlays = [ self.overlays.default ];
+        };
+        default = self.homeModules.cairn;
+      };
+
+      homeConfigurations.demo = homeFor "x86_64-linux";
 
       # nix fmt：格式化整个仓库。
       formatter = forAllSystems (system: (pkgsFor system).nixfmt-tree);
