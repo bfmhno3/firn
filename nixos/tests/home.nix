@@ -78,8 +78,11 @@ pkgs.testers.runNixOSTest {
       report("repo_marker", "cairn.repo")
       # cairn init 在配置文件不存在时会写一份模板。激活里 cairnInit 排在
       # linkGeneration 之前，看看它有没有这么做。
-      journal = machine.succeed("journalctl -u home-manager-alice.service --no-pager")
-      report("init_wrote_template", "wrote /home/alice/.config/cairn/cairn.conf" in journal)
+      journal = machine.succeed(
+          "journalctl -u home-manager-alice.service --no-pager"
+      )
+      wrote = "wrote /home/alice/.config/cairn/cairn.conf" in journal
+      report("init_wrote_template", wrote)
 
       timers = machine.succeed("systemctl --user -M alice@ list-timers --all")
       assert "cairn" in timers, timers
@@ -90,7 +93,8 @@ pkgs.testers.runNixOSTest {
       # home-manager 的 profile，所以 generations 是空的（退出码 1）。
       hm = "/home/alice/.nix-profile/bin/home-manager"
       status, out = machine.execute(f"runuser -u alice -- {hm} generations")
-      report("hm_generations_nixos_module", f"exit {status}, {len(out.splitlines())} lines")
+      lines = len(out.splitlines())
+      report("hm_generations_nixos_module", f"exit {status}, {lines} lines")
 
       # home-manager switch 在独立模式下做的事：把激活包登记成 home-manager
       # profile 的一代。登记之后 generations 才有第一行。
