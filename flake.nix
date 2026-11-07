@@ -3,8 +3,19 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+  # 第 17 章：sops-nix，锁在 2026-08-23 之前 master 的最后一个提交。
+  inputs.sops-nix = {
+    url = "github:Mic92/sops-nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   outputs =
-    { self, nixpkgs, ... }:
+    {
+      self,
+      nixpkgs,
+      sops-nix,
+      ...
+    }:
     let
       systems = [
         "x86_64-linux"
@@ -208,6 +219,12 @@
           cairn-vm = import ./nixos/tests/cairn.nix {
             inherit pkgs;
             cairnModule = self.nixosModules.default;
+          };
+
+          # 第 17 章：sops-nix 与直接写进 store 的两个节点对比。
+          secrets-vm = import ./nixos/tests/secrets.nix {
+            inherit pkgs;
+            sopsModule = sops-nix.nixosModules.sops;
           };
         }
         # 每个包一个 pkg-<name> 检查；default 只是别名，不重复。
