@@ -1,0 +1,46 @@
+# 每次推送 main 都在两种 Nix 安装器上跑 `make ci`（lint、全部章节的实验、
+# nix flake check），并把构建结果推到公开的 Cachix 缓存 bfmhno3-firn。
+# 两条矩阵线各自计时：第一次运行是冷缓存，之后是热缓存。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check (${{ matrix.installer }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        installer: [upstream, determinate]
+    steps:
+      - uses: actions/checkout@v7
+
+      # 虚拟机测试（cairn-vm、secrets-vm、home-vm）需要 /dev/kvm，
+      # 这条 udev 规则把 /dev/kvm 的权限放宽到 0666，runner 用户才能打开它。
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Nix (upstream)
+        if: matrix.installer == 'upstream'
+        uses: cachix/install-nix-action@v31
+
+      - name: Install Nix (Determinate)
+        if: matrix.installer == 'determinate'
+        uses: DeterminateSystems/determinate-nix-action@v3
+
+      - uses: cachix/cachix-action@v17
+        with:
+          name: bfmhno3-firn
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - run: nix develop --command make ci

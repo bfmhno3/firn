@@ -7,7 +7,7 @@ NIX_FILES = $(shell git ls-files '*.nix')
 NIX_STRICT = $(filter-out lab/% templates/%,$(NIX_FILES))
 SHELL_FILES = $(shell git ls-files '*.sh')
 
-.PHONY: chapters lint check ci clean $(CHAPTERS)
+.PHONY: chapters lint check repro ci clean $(CHAPTERS)
 
 $(CHAPTERS):
 	bash scripts/chapter.sh $@
@@ -24,6 +24,9 @@ lint:
 
 check:
 	nix flake check -L
+
+repro:
+	nix build .#firn-hello --rebuild
 
 ci: lint chapters check
 

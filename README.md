@@ -51,6 +51,9 @@ lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixe
 data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
 tests/lib.nix           lib tests on `runTests`: `nix eval --file tests/lib.nix` prints `[ ]`; also the flake check `lib-tests`
 experiments/determinate/  Determinate Nix in a NixOS VM test (chapter 19; its own flake, not an input of Firn)
+tests/lib-unit.nix      the same kind of tests for `nix-unit` (14 cases); also the flake check `lib-unit`
+.github/workflows/ci.yml  `make ci` on push to `main`, once per Nix installer (upstream, Determinate), pushing to the Cachix cache `bfmhno3-firn`
+.github/workflows/update-flake-lock.yml  opens a `flake.lock` update PR; manual only, never scheduled
 .github/workflows/flakehub.yml  publishes Firn to FlakeHub on pushes to `main` and on `ch*` and semver (`v1.2.3`) tags
 lab/chNN/               small experiments, one directory per chapter
 Makefile                entry points: chNN, chapters, lint, check, ci, clean
@@ -76,7 +79,7 @@ Lab conventions, enforced by `scripts/chapter.sh`:
 | `packages.<sys>.{default,firn-hello,firn-hello-hallo,cairn,sift,pebble,firn-tools,cairn-report}` | `nix build .#cairn` |
 | `packages.x86_64-linux.{firn-hello-static,firn-hello-musl,firn-hello-aarch64}` | firn-hello from `pkgsStatic`, `pkgsMusl` and `pkgsCross.aarch64-multiplatform` |
 | `overlays.default` | the `pkgs/*` packages as a nixpkgs overlay |
-| `checks.<sys>.{dev-shell,lib-tests,readme-table,mini-site,pkg-*}` | `nix flake check`; one `pkg-<name>` build per package |
+| `checks.<sys>.{dev-shell,lib-tests,lib-unit,lint,readme-table,mini-site,pkg-*}` | `nix flake check`; one `pkg-<name>` build per package |
 | `legacyPackages.<sys>.mini` | the from-scratch package set |
 | `apps.<sys>.mini-hello` | `nix run .#mini-hello` prints the mini greeting |
 | `formatter.<sys>` | `nixfmt-tree`: `nix fmt` |
@@ -113,8 +116,13 @@ Plain Nix can fetch FlakeHub URLs; no login is needed for public flakes.
 nix develop
 make ch01      # run the labs of one chapter
 make ci        # lint + every chapter + nix flake check
-make check     # flake checks: dev-shell, lib-tests, readme-table
+make check     # flake checks: dev-shell, lib-tests, lib-unit, lint, readme-table, ...
+make repro     # nix build .#firn-hello --rebuild: build again and compare the output
 ```
+
+The flake's `nixConfig` adds the public Cachix cache `bfmhno3-firn.cachix.org` as an extra substituter. Nix ignores
+a flake's `nixConfig` settings that need trust unless you pass `--accept-flake-config`, so a
+plain `nix build` here prints a warning and uses your own substituters.
 
 ## License
 

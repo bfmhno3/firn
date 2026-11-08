@@ -1,0 +1,18 @@
+# 手动更新 flake.lock 并开一个 PR。故意不设定时触发：
+# 系列文章引用的是锁定的 nixpkgs，pin 不能在文章下面自己移动。
+name: Update flake.lock
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: DeterminateSystems/update-flake-lock@v29

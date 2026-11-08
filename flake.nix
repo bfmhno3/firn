@@ -1,6 +1,15 @@
 {
   description = "firn: companion code for the series 用 Firn 从零学 Nix";
 
+  # 第 20 章：CI 推送到的公开 Cachix 缓存。nixConfig 里的设置要经过
+  # accept-flake-config（或交互确认）才生效，见第 20 章。
+  nixConfig = {
+    extra-substituters = [ "https://bfmhno3-firn.cachix.org" ];
+    extra-trusted-public-keys = [
+      "bfmhno3-firn.cachix.org-1:LqoBOb9Jvs/LrrTa/CxBwJG14boQsOkdBEABj+M3GBI="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -177,6 +186,48 @@
                 exit 1
               ''
           );
+
+          # 第 20 章：tests/lib-unit.nix 交给 nix-unit 跑。沙箱里没有 /nix/var 的可写
+          # 状态，所以像 nix-unit 文档说的那样把 HOME 指到构建目录，并用
+          # --eval-store 把求值产物放在那里。
+          lib-unit =
+            pkgs.runCommand "firn-lib-unit"
+              {
+                src = pkgs.lib.cleanSource ./.;
+                nativeBuildInputs = [ pkgs.nix-unit ];
+              }
+              ''
+                HOME="$(realpath .)"
+                export HOME
+                nix-unit --eval-store "$HOME" "$src/tests/lib-unit.nix"
+                echo ok > $out
+              '';
+
+          # 第 20 章：Makefile lint 目标的沙箱版。文件选择与 Makefile 一致：
+          # nixfmt 看所有 .nix，statix 和 deadnix 跳过 lab/ 和 templates/。
+          lint =
+            pkgs.runCommand "firn-lint"
+              {
+                src = pkgs.lib.cleanSource ./.;
+                nativeBuildInputs = with pkgs; [
+                  nixfmt
+                  statix
+                  deadnix
+                  findutils
+                ];
+              }
+              ''
+                cd "$src"
+                mapfile -t all < <(find . -name '*.nix' -type f | sort)
+                mapfile -t strict < <(find . -name '*.nix' -type f \
+                  -not -path './lab/*' -not -path './templates/*' | sort)
+                nixfmt --check "''${all[@]}"
+                for f in "''${strict[@]}"; do
+                  statix check "$f"
+                done
+                deadnix --fail "''${strict[@]}"
+                echo ok > $out
+              '';
 
           # README 里标记之间的表必须等于 renderChapterTable 的输出。
           readme-table =

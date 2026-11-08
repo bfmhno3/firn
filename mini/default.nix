@@ -22,4 +22,5 @@ lib.makeExtensible (self: {
   wordfreq = self.callPackage ./pkgs/wordfreq.nix { };
   cairn-src = self.callPackage ./pkgs/cairn-src.nix { };
   site = self.callPackage ./pkgs/site.nix { };
+  nondeterministic = self.callPackage ./pkgs/nondeterministic.nix { };
 })

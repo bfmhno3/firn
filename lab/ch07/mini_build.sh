@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Builds every package of the mini set through the flake output
+# Builds every package of the mini set (except nondeterministic, the chapter 20
+# package that is not reproducible on purpose) through the flake output
 # legacyPackages.<system>.mini and prints each closure with `nix path-info
 # -rS`. Exits 1 if a closure contains anything but the seed busybox and mini
 # paths (that is, a path whose name is not one of the mini package names).
@@ -15,7 +16,7 @@ readonly mini="${FIRN_ROOT}#legacyPackages.${system}.mini"
 
 # shellcheck disable=SC2016 # the Nix expression is not for this shell
 readarray -t names < <(nix eval --json "${mini}" --apply \
-  'm: builtins.filter (n: n != "busybox" && (m.${n}.type or "") == "derivation") (builtins.attrNames m)' \
+  'm: builtins.filter (n: n != "busybox" && n != "nondeterministic" && (m.${n}.type or "") == "derivation") (builtins.attrNames m)' \
   | jq -r '.[]')
 
 pattern='^/nix/store/[0-9a-z]{32}-(busybox-static-[^/]*|'
