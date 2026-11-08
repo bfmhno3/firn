@@ -117,6 +117,7 @@ nix develop
 make ch01      # run the labs of one chapter
 make ci        # lint + every chapter + nix flake check
 make check     # flake checks: dev-shell, lib-tests, lib-unit, lint, readme-table, ...
+               # (the `lint` check covers Nix files only; shellcheck and shfmt run in `make lint`)
 make repro     # nix build .#firn-hello --rebuild: build again and compare the output
 ```
 

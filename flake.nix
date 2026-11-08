@@ -187,9 +187,10 @@
               ''
           );
 
-          # 第 20 章：tests/lib-unit.nix 交给 nix-unit 跑。沙箱里没有 /nix/var 的可写
-          # 状态，所以像 nix-unit 文档说的那样把 HOME 指到构建目录，并用
-          # --eval-store 把求值产物放在那里。
+          # 第 20 章：tests/lib-unit.nix 交给 nix-unit 跑。HOME 必须指到构建目录：
+          # 不设时沙箱里的 nix 报 creating directory "/nix/var/nix/profiles":
+          # Permission denied。--eval-store "$HOME" 是 nix-unit 文档的写法；实测
+          # 设了 HOME 之后去掉它，14 个用例照样通过，所以它不是必需的。
           lib-unit =
             pkgs.runCommand "firn-lib-unit"
               {
@@ -205,6 +206,7 @@
 
           # 第 20 章：Makefile lint 目标的沙箱版。文件选择与 Makefile 一致：
           # nixfmt 看所有 .nix，statix 和 deadnix 跳过 lab/ 和 templates/。
+          # 只覆盖 Nix 文件：shellcheck 和 shfmt 只在 make lint 里跑。
           lint =
             pkgs.runCommand "firn-lint"
               {

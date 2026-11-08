@@ -1,4 +1,5 @@
-# tests/lib.nix 里 13 个用例加 1 个 expectedError 用例的 nix-unit 版本。格式相同：testXxx = { expr; expected; }，
+# 14 个用例：13 个取自 tests/lib.nix（testConstIsLazy 是那里的
+# testConstIgnoresSecond 改了名），1 个是 nix-unit 才有的 expectedError。格式相同：testXxx = { expr; expected; }，
 # 不同在运行方式：`nix-unit tests/lib-unit.nix` 逐个求值并打印每个用例的结果，
 # 而 runTests 只返回失败列表。nix-unit 还多一种用例，`expectedError`，见最后一个。
 let
