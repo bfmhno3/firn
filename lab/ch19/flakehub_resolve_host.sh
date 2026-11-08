@@ -17,8 +17,11 @@ readonly REF='https://flakehub.com/f/bfmhno3/firn/0.1.*'
 
 main() {
   local meta
-  if ! meta="$(nix flake metadata --json "${REF}" 2>&1)"; then
-    echo "volatile: not resolvable yet: $(grep -m 1 'HTTP error' <<<"${meta}" \
+  # stdout is the JSON; stderr (warnings, HTTP errors) goes to a file so a
+  # warning can never end up inside the JSON that jq parses.
+  local err="${LAB_TMP}/metadata.stderr"
+  if ! meta="$(nix flake metadata --json "${REF}" 2>"${err}")"; then
+    echo "volatile: not resolvable yet: $(grep -m 1 'HTTP error' "${err}" \
       | sed 's/.*\(HTTP error [0-9]*\).*/\1/')"
     return 0
   fi
