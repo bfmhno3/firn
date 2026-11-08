@@ -1,0 +1,25 @@
+# 发布到 FlakeHub：https://flakehub.com/flake/bfmhno3/firn
+# 每次推送 main 或 chNN 标签（以及语义化版本标签）都发布一个滚动版本，
+# 版本号形如 0.1.<提交数>+rev-<sha>。认证走 GitHub OIDC，不需要密钥。
+name: Publish to FlakeHub
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "ch*"
+      - "v?[0-9]+.[0-9]+.[0-9]+*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # 向 FlakeHub 证明身份
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: DeterminateSystems/flakehub-push@v7
+        with:
+          visibility: public
+          rolling: true

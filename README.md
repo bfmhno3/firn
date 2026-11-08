@@ -50,6 +50,8 @@ contrib/nixpkgs/        cairn written as a nixpkgs `pkgs/by-name` package (chapt
 lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixed-points, strings, importers, sources, readme, lists, generators, debug
 data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
 tests/lib.nix           lib tests on `runTests`: `nix eval --file tests/lib.nix` prints `[ ]`; also the flake check `lib-tests`
+experiments/determinate/  Determinate Nix in a NixOS VM test (chapter 19; its own flake, not an input of Firn)
+.github/workflows/flakehub.yml  publishes Firn to FlakeHub on every push to `main` and every `ch*` tag
 lab/chNN/               small experiments, one directory per chapter
 Makefile                entry points: chNN, chapters, lint, check, ci, clean
 ```
@@ -88,6 +90,22 @@ from `flake.lock`, so both paths use one nixpkgs.
 nix-build -A mini.hello    # same store path as: nix build .#legacyPackages.<sys>.mini.hello
 nix-shell                  # nixfmt, statix, deadnix, jq (no flake needed)
 ```
+
+## FlakeHub
+
+Firn is published on FlakeHub as [`bfmhno3/firn`](https://flakehub.com/flake/bfmhno3/firn) by
+`.github/workflows/flakehub.yml` (`DeterminateSystems/flakehub-push` with `rolling: true`). Every release has a version of
+the form `0.1.<commit count>+rev-<sha>`; the URL below always resolves to the newest one.
+
+```nix
+{
+  inputs.firn.url = "https://flakehub.com/f/bfmhno3/firn/0.1.*";
+  # or, from the command line:
+  #   nix flake metadata "https://flakehub.com/f/bfmhno3/firn/0.1.*"
+}
+```
+
+Plain Nix can fetch FlakeHub URLs; no login is needed for public flakes.
 
 ## Running
 
