@@ -2,7 +2,9 @@
 #
 # The attributes `self` carries, in a temp flake under LAB_TMP: `rev` for a
 # clean git tree, `dirtyRev` for a modified one, neither for a plain `path:`
-# directory. Commit dates are fixed so the revision is reproducible.
+# directory. Commit dates are fixed so the revision is reproducible. The two
+# date attributes use `or null`: with a dirty tree Determinate Nix 3.24.2 (the
+# CI leg) does not define `lastModified` ("attribute 'lastModified' missing").
 
 set -o errexit
 set -o nounset
@@ -20,8 +22,8 @@ cat >flake.nix <<'NIX'
       info = {
         rev = self.rev or null;
         dirtyRev = self.dirtyRev or null;
-        lastModifiedDate = self.lastModifiedDate;
-        lastModified = self.lastModified;
+        lastModifiedDate = self.lastModifiedDate or null;
+        lastModified = self.lastModified or null;
         selfOutPath = self.outPath;
       };
     };
