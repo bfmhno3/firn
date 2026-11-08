@@ -20,7 +20,10 @@ jobs:
       matrix:
         installer: [upstream, determinate]
     steps:
+      # 完整历史：ch08 的实验读 revCount，浅克隆里没有它。
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # 虚拟机测试（cairn-vm、secrets-vm、home-vm）需要 /dev/kvm，
       # 这条 udev 规则把 /dev/kvm 的权限放宽到 0666，runner 用户才能打开它。

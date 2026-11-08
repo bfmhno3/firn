@@ -9,7 +9,9 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-store_path="$(nix flake metadata --json "${FIRN_ROOT}" | jq -r .path)"
+# `flake prefetch` copies the source into the store on every Nix version:
+# since 2.35 `flake metadata` alone leaves the path virtual (not in the store).
+store_path="$(nix flake prefetch --json "${FIRN_ROOT}" | jq -r .storePath)"
 readonly store_path
 
 echo "== the copy"

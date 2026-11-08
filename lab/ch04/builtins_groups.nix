@@ -146,7 +146,10 @@ let
       "null"
     ];
   };
-  all = builtins.attrNames builtins;
+  # Determinate Nix 3.24.2 (CI) 比上游多一个 builtins.filterAttrs，不在上游目录里；
+  # 排除它，名字总数在每个 Nix 上都一样。
+  forkOnly = [ "filterAttrs" ];
+  all = builtins.filter (n: !(builtins.elem n forkOnly)) (builtins.attrNames builtins);
   grouped = builtins.concatLists (builtins.attrValues groups);
   missing = builtins.filter (n: !(builtins.hasAttr n builtins)) grouped;
   uncategorized = builtins.filter (n: !(builtins.elem n grouped)) all;
