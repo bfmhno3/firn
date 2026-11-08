@@ -51,7 +51,7 @@ lib/                    Firn's own library (no nixpkgs): trivial, attrsets, fixe
 data/chapters.toml      the 20 chapters; the table above is rendered from it (`lab/ch04/render_table.nix`)
 tests/lib.nix           lib tests on `runTests`: `nix eval --file tests/lib.nix` prints `[ ]`; also the flake check `lib-tests`
 experiments/determinate/  Determinate Nix in a NixOS VM test (chapter 19; its own flake, not an input of Firn)
-.github/workflows/flakehub.yml  publishes Firn to FlakeHub on every push to `main` and every `ch*` tag
+.github/workflows/flakehub.yml  publishes Firn to FlakeHub on pushes to `main` and on `ch*` and semver (`v1.2.3`) tags
 lab/chNN/               small experiments, one directory per chapter
 Makefile                entry points: chNN, chapters, lint, check, ci, clean
 ```

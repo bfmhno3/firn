@@ -7,7 +7,7 @@
 #   fh status                  shows that no token is present
 #   fh search firn             full text search
 #   fh list releases / versions    read the releases of a public flake
-#   fh resolve                 needs a login: prints its real error
+#   fh resolve                 without a token: "output reference ... not found"
 # Needs the network.
 
 set -o errexit
@@ -42,7 +42,7 @@ main() {
   run_fh search firn
   run_fh list releases DeterminateSystems/determinate
   run_fh list versions DeterminateSystems/determinate '3.2.*'
-  # 需要登录：FlakeHub 只对已登录的用户返回已解析的 store 路径。
+  # 没有登录时：FlakeHub 找不到这个输出引用，fh 报 not found（不是认证错误）。
   run_fh resolve \
     'DeterminateSystems/flake-checker/0.1#packages.x86_64-linux.default'
 }
