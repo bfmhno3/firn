@@ -29,6 +29,7 @@ main() {
   ls "${LAB_TMP}/cache"
 
   nix copy --from "${CACHE_URL}" --to "${LAB_TMP}/store" \
+    --option require-sigs true \
     --option trusted-public-keys "${PUBLIC_KEY}" "${FIRN_HELLO}"
   nix path-info --store "${LAB_TMP}/store" "${FIRN_HELLO}"
   echo "copy with the lab key trusted: ok"

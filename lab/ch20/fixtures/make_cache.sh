@@ -15,10 +15,13 @@
 #   FIRN_HELLO, PUBLIC_KEY, CACHE_URL (set)
 # Arguments:
 #   Optional: query string for the cache URL, e.g. "compression=none".
+# Environment:
+#   FIRN_LAB_SUBJECT: store path to put in the cache instead of firn-hello.
 #######################################
 make_cache() {
   local query="${1:-}"
-  FIRN_HELLO="$(nix build --no-link --print-out-paths "${FIRN_ROOT}#firn-hello")"
+  FIRN_HELLO="${FIRN_LAB_SUBJECT:-$(nix build --no-link --print-out-paths \
+    "${FIRN_ROOT}#firn-hello")}"
   CACHE_URL="file://${LAB_TMP}/cache${query:+?${query}}"
 
   nix key generate-secret --key-name firn-lab-1 >"${LAB_TMP}/secret.key"

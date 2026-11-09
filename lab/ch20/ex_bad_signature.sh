@@ -31,6 +31,7 @@ main() {
   printf '\xff' | dd of="${nar}" bs=1 seek="${offset}" conv=notrunc status=none
 
   if nix copy --from "${CACHE_URL}" --to "${LAB_TMP}/store" \
+    --option require-sigs true \
     --option trusted-public-keys "${PUBLIC_KEY}" "${FIRN_HELLO}"; then
     echo "tampered NAR was accepted" >&2
     return 1
